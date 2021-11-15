@@ -1,51 +1,70 @@
 import Phaser from "phaser";
 
-import {
-  addComponent,
-  addEntity,
-  createWorld,
-  defineComponent,
-  Types,
-} from "bitecs";
+import { addComponent, addEntity, createWorld, System } from "bitecs";
+import { World } from "matter";
 
-const Position = defineComponent({
-  x: Types.f32,
-  y: Types.f32,
-});
+import blueTank from "../assets/tank_blue.png";
+import redTank from "../assets/tank_red.png";
+import greenTank from "../assets/tank_green.png";
 
-const Velocity = defineComponent({
-  x: Types.f32,
-  y: Types.f32,
-});
+import { Player } from "../components/Player";
+import { Position } from "../components/Position";
+import { Velocity } from "../components/Velocity";
+import { Sprite } from "../components/Sprite";
+import { createSpriteSystem } from "../systems/SpriteSystem";
+import { createMovementSystem } from "../systems/MovementSystem";
+import { createPlayerSystem } from "../systems/PlayerSystem";
 
+// map of sprites with their id mapped to a phaser object
 export default class Game extends Phaser.Scene {
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private spriteSystem?: System;
+  private movementSystem?: System;
+  private playerSystem?: System;
+  private world?: World;
+
   constructor() {
     super("game");
   }
 
+  init() {
+    this.cursors = this.input.keyboard.createCursorKeys();
+  }
+
   preload() {
-    this.load.image("tank-blue", "assets/tank_blue.png");
-    this.load.image("tank-green", "assets/tank_green.png");
-    this.load.image("tank-red", "assets/tank_red.png");
+    this.load.image("tank-blue", blueTank);
+    this.load.image("tank-green", greenTank);
+    this.load.image("tank-red", redTank);
   }
 
   create() {
-    const world = createWorld();
+    this.world = createWorld();
 
     // tank is basically just an id
-    const tank = addEntity(world);
+    const tank = addEntity(this.world);
 
     // Added position component to tank entity
-    addComponent(world, Position, tank);
+    addComponent(this.world, Position, tank);
 
     // component properties are an array that stores the properties of an entity
     Position.x[tank] = 100;
     Position.y[tank] = 100;
 
-    addComponent(world, Velocity, tank);
+    addComponent(this.world, Velocity, tank);
+    addComponent(this.world, Sprite, tank);
 
-    Velocity.x[tank] = 5;
-    Velocity.y[tank] = 5;
+    Sprite.texture[tank] = 0;
+
+    addComponent(this.world, Player, tank);
+
+    this.spriteSystem = createSpriteSystem(this, [
+      "tank-blue",
+      "tank-red",
+      "tank-green",
+    ]);
+
+    this.movementSystem = createMovementSystem();
+    this.playerSystem = createPlayerSystem(this.cursors);
 
     // CREATE ENTITIES
     // ATTACH COMPONENTS
@@ -53,6 +72,13 @@ export default class Game extends Phaser.Scene {
   }
 
   update(t: number, dt: number) {
-    // run systems
+    if (!this.world) return;
+
+    // Order of systems is very important
+    this.playerSystem?.(this.world);
+
+    this.movementSystem?.(this.world);
+    // sprite system is our rendering system in this case
+    this.spriteSystem?.(this.world);
   }
 }
