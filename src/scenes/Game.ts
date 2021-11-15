@@ -14,6 +14,7 @@ import { Sprite } from "../components/Sprite";
 import { createSpriteSystem } from "../systems/SpriteSystem";
 import { createMovementSystem } from "../systems/MovementSystem";
 import { createPlayerSystem } from "../systems/PlayerSystem";
+import { Rotation } from "../components/Rotation";
 
 // map of sprites with their id mapped to a phaser object
 export default class Game extends Phaser.Scene {
@@ -49,6 +50,8 @@ export default class Game extends Phaser.Scene {
     // component properties are an array that stores the properties of an entity
     Position.x[tank] = 100;
     Position.y[tank] = 100;
+
+    addComponent(this.world, Rotation, tank);
 
     addComponent(this.world, Velocity, tank);
     addComponent(this.world, Sprite, tank);
