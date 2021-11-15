@@ -1,11 +1,12 @@
 import { defineQuery, defineSystem, enterQuery, exitQuery } from "bitecs";
+import { Rotation } from "../components/Rotation";
 import { Position } from "../components/Position";
 import { Sprite } from "../components/Sprite";
 
 export const createSpriteSystem = (scene: Phaser.Scene, textures: string[]) => {
   const spritesById = new Map<number, Phaser.GameObjects.Sprite>();
 
-  const spriteQuery = defineQuery([Sprite]);
+  const spriteQuery = defineQuery([Sprite, Rotation]);
   const spriteQueryEnter = enterQuery(spriteQuery);
   const spriteQueryExit = exitQuery(spriteQuery);
 
@@ -34,6 +35,7 @@ export const createSpriteSystem = (scene: Phaser.Scene, textures: string[]) => {
 
       sprite.x = Position.x[id];
       sprite.y = Position.y[id];
+      sprite.angle = Rotation.angle[id];
     }
 
     // delete any sprites whose entities have been removed or "exited" the world
