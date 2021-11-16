@@ -15,6 +15,8 @@ import { createSpriteSystem } from "../systems/SpriteSystem";
 import { createMovementSystem } from "../systems/MovementSystem";
 import { createPlayerSystem } from "../systems/PlayerSystem";
 import { Rotation } from "../components/Rotation";
+import { createCPUSystem } from "../systems/CPUSystem";
+import { CPU } from "../components/CPU";
 
 // map of sprites with their id mapped to a phaser object
 export default class Game extends Phaser.Scene {
@@ -22,6 +24,7 @@ export default class Game extends Phaser.Scene {
   private spriteSystem?: System;
   private movementSystem?: System;
   private playerSystem?: System;
+  private cpuSystem?: System;
   private world?: World;
 
   constructor() {
@@ -60,6 +63,23 @@ export default class Game extends Phaser.Scene {
 
     addComponent(this.world, Player, tank);
 
+    const { width, height } = this.scale;
+    for (let i = 0; i < 20; ++i) {
+      const cpuTank = addEntity(this.world);
+
+      addComponent(this.world, Position, cpuTank);
+      Position.x[cpuTank] = Phaser.Math.Between(width * 0.25, height * 0.75);
+      Position.y[cpuTank] = Phaser.Math.Between(width * 0.25, height * 0.75);
+
+      addComponent(this.world, Rotation, cpuTank);
+      addComponent(this.world, Velocity, cpuTank);
+      addComponent(this.world, Sprite, cpuTank);
+
+      Sprite.texture[cpuTank] = Phaser.Math.Between(1, 2);
+      addComponent(this.world, CPU, cpuTank);
+      CPU.timeBetweenActions[cpuTank] = Phaser.Math.Between(0, 500);
+    }
+
     this.spriteSystem = createSpriteSystem(this, [
       "tank-blue",
       "tank-red",
@@ -68,6 +88,7 @@ export default class Game extends Phaser.Scene {
 
     this.movementSystem = createMovementSystem();
     this.playerSystem = createPlayerSystem(this.cursors);
+    this.cpuSystem = createCPUSystem(this);
 
     // CREATE ENTITIES
     // ATTACH COMPONENTS
@@ -79,6 +100,7 @@ export default class Game extends Phaser.Scene {
 
     // Order of systems is very important
     this.playerSystem?.(this.world);
+    this.cpuSystem?.(this.world);
 
     this.movementSystem?.(this.world);
     // sprite system is our rendering system in this case
