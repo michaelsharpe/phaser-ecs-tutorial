@@ -2,11 +2,12 @@ import { defineQuery, defineSystem } from "bitecs";
 import { Velocity } from "../components/Velocity";
 import { Player } from "../components/Player";
 import { Rotation } from "../components/Rotation";
+import { Direction, Input } from "../components/Input";
 
 export const createPlayerSystem = (
   cursors: Phaser.Types.Input.Keyboard.CursorKeys
 ) => {
-  const query = defineQuery([Player, Velocity, Rotation]);
+  const query = defineQuery([Player, Velocity, Rotation, Input]);
 
   return defineSystem((world) => {
     const entities = query(world);
@@ -15,24 +16,15 @@ export const createPlayerSystem = (
       const id = entities[i];
 
       if (cursors.left.isDown) {
-        Velocity.x[id] = -5;
-        Velocity.y[id] = 0;
-        Rotation.angle[id] = 180;
+        Input.direction[id] = Direction.Left;
       } else if (cursors.right.isDown) {
-        Velocity.x[id] = 5;
-        Velocity.y[id] = 0;
-        Rotation.angle[id] = 0;
+        Input.direction[id] = Direction.Right;
       } else if (cursors.up.isDown) {
-        Velocity.x[id] = 0;
-        Velocity.y[id] = -5;
-        Rotation.angle[id] = 270;
+        Input.direction[id] = Direction.Up;
       } else if (cursors.down.isDown) {
-        Velocity.x[id] = 0;
-        Velocity.y[id] = 5;
-        Rotation.angle[id] = 90;
+        Input.direction[id] = Direction.Down;
       } else {
-        Velocity.x[id] = 0;
-        Velocity.y[id] = 0;
+        Input.direction[id] = Direction.None;
       }
     }
 
