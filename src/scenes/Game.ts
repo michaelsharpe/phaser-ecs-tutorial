@@ -17,6 +17,7 @@ import { createPlayerSystem } from "../systems/PlayerSystem";
 import { Rotation } from "../components/Rotation";
 import { createCPUSystem } from "../systems/CPUSystem";
 import { CPU } from "../components/CPU";
+import { Input } from "../components/Input";
 
 // map of sprites with their id mapped to a phaser object
 export default class Game extends Phaser.Scene {
@@ -55,6 +56,7 @@ export default class Game extends Phaser.Scene {
     Position.y[tank] = 100;
 
     addComponent(this.world, Rotation, tank);
+    addComponent(this.world, Input, tank);
 
     addComponent(this.world, Velocity, tank);
     addComponent(this.world, Sprite, tank);
@@ -74,6 +76,7 @@ export default class Game extends Phaser.Scene {
       addComponent(this.world, Rotation, cpuTank);
       addComponent(this.world, Velocity, cpuTank);
       addComponent(this.world, Sprite, cpuTank);
+      addComponent(this.world, Input, cpuTank);
 
       Sprite.texture[cpuTank] = Phaser.Math.Between(1, 2);
       addComponent(this.world, CPU, cpuTank);
